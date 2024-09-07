@@ -86,7 +86,6 @@
             </select>
         </div>
         <div class="button-container">
-            <button onclick="copyText()" class="button">Copy for AI</button>
             <button onclick="performSearch('google')" class="button">Google Search🔎</button>   
             <button onclick="performSearch('bing')" class="button">Bing Search🔎</button>
             <button onclick="performSearch('chatgpt')" class="button">Ask ChatGPT</button>
@@ -95,6 +94,23 @@
         </div>
     </header>
     <script>
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function copyText() {
+            var question = document.getElementById("question").value;
+            navigator.clipboard.writeText(question).then(function() {
+                console.log("Copied to clipboard: " + question);
+            }).catch(function(error) {
+                console.error("Failed to copy text: ", error);
+            });
+        }
+
         function performSearch(engine) {
             var question = document.getElementById("question").value;
             var deviceType = document.getElementById("deviceType").value;
@@ -125,19 +141,13 @@
             }
         }
 
-        function copyText() {
-            var question = document.getElementById("question").value;
-            var deviceType = document.getElementById("deviceType").value;
-            var region = document.getElementById("region").value;
-            var fullText = question + (deviceType ? ' - ' + deviceType : '') + (region ? ' in ' + region : '');
-            var textArea = document.createElement("textarea");
-            textArea.value = fullText;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            alert("Copied the text: " + fullText);
-        }
+        const textarea = document.getElementById("question");
+        const deviceTypeSelect = document.getElementById("deviceType");
+        const regionSelect = document.getElementById("region");
+
+        textarea.addEventListener('input', debounce(copyText, 500)); // Copy text on input with debounce
+        deviceTypeSelect.addEventListener('change', copyText); // Copy text when selection changes
+        regionSelect.addEventListener('change', copyText); // Copy text when selection changes
     </script>
 </body>
 </html>
